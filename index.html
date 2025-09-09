@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatApp - Secure Messaging</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Loading ChatApp...</p>
+    </div>
+
+    <!-- Login/Register Modal -->
+    <div id="auth-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="auth-title">Welcome to ChatApp</h2>
+                <button class="close-btn" onclick="closeAuthModal()">&times;</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remember-me" name="remember">
+                        Remember me
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+                <p class="auth-switch">
+                    Don't have an account? 
+                    <a href="#" onclick="showRegisterForm()">Sign up</a>
+                </p>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form" style="display: none;">
+                <div class="form-group">
+                    <label for="register-name">Full Name</label>
+                    <input type="text" id="register-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" name="password" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="register-avatar">Avatar (Optional)</label>
+                    <input type="file" id="register-avatar" name="avatar" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary">Register</button>
+                <p class="auth-switch">
+                    Already have an account? 
+                    <a href="#" onclick="showLoginForm()">Sign in</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Chat Interface -->
+    <div id="chat-app" class="chat-app" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-info">
+                    <img id="user-avatar" class="avatar" src="assets/images/default-avatar.png" alt="User Avatar">
+                    <div class="user-details">
+                        <h3 id="user-name">User Name</h3>
+                        <span id="user-status" class="status online">Online</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-icon" onclick="showSettings()" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="btn-icon" onclick="logout()" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="conversation-search" placeholder="Search conversations..." onkeyup="searchConversations()">
+                <i class="fas fa-search"></i>
+            </div>
+
+            <div class="conversation-list" id="conversation-list">
+                <!-- Conversations will be loaded here -->
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="btn btn-primary" onclick="showNewChatModal()">
+                    <i class="fas fa-plus"></i> New Chat
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="chat-welcome" id="chat-welcome">
+                <div class="welcome-content">
+                    <i class="fas fa-comments"></i>
+                    <h2>Welcome to ChatApp</h2>
+                    <p>Select a conversation to start chatting</p>
+                </div>
+            </div>
+
+            <div class="chat-container" id="chat-container" style="display: none;">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-contact-info">
+                        <img id="chat-contact-avatar" class="avatar" src="assets/images/default-avatar.png" alt="Contact Avatar">
+                        <div class="contact-details">
+                            <h3 id="chat-contact-name">Contact Name</h3>
+                            <span id="chat-contact-status" class="status">Last seen recently</span>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="btn-icon" onclick="showChatInfo()" title="Chat Info">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages Area -->
+                <div class="messages-area" id="messages-area">
+                    <!-- Messages will be loaded here -->
+                </div>
+
+                <!-- Typing Indicator -->
+                <div class="typing-indicator" id="typing-indicator" style="display: none;">
+                    <div class="typing-animation">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span class="typing-text">Someone is typing...</span>
+                </div>
+
+                <!-- Message Input -->
+                <div class="message-input-area">
+                    <form id="message-form" class="message-form">
+                        <input type="file" id="file-input" multiple style="display: none;" onchange="handleFileSelect(this.files)">
+                        <button type="button" class="btn-icon" onclick="document.getElementById('file-input').click()" title="Attach File">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        
+                        <div class="message-input-container">
+                            <textarea id="message-input" placeholder="Type a message..." rows="1" onkeydown="handleMessageKeydown(event)" oninput="autoResize(this)"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-icon send-btn" title="Send Message">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+
+                    <!-- File Preview -->
+                    <div id="file-preview" class="file-preview" style="display: none;">
+                        <!-- File previews will be shown here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Chat Modal -->
+    <div id="new-chat-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Start New Chat</h2>
+                <button class="close-btn" onclick="closeNewChatModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-box">
+                    <input type="text" id="contact-search" placeholder="Search contacts..." onkeyup="searchContacts()">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="contact-list" id="contact-list">
+                    <!-- Contacts will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="context-menu" class="context-menu" style="display: none;">
+        <div class="context-menu-item" onclick="deleteMessage()">
+            <i class="fas fa-trash"></i> Delete
+        </div>
+        <div class="context-menu-item" onclick="deleteMessageForAll()">
+            <i class="fas fa-trash-alt"></i> Delete for everyone
+        </div>
+        <div class="context-menu-item" onclick="copyMessage()">
+            <i class="fas fa-copy"></i> Copy
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- Scripts -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/chat.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

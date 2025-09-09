@@ -1,1 +1,5 @@
-uploads
+uploads/avatars/*
+uploads/images/*
+uploads/videos/*
+uploads/audio/*
+uploads/files/*
